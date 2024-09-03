@@ -1,0 +1,32 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "quotes": [
+      "error",
+      "single",
+      {
+        "allowTemplateLiterals": true
+      }
+    ],
+    "indent": "off",
+    "no-unused-vars": "off", // Needs to be disabled to avoid interference with @typescript-eslint/no-unused-vars
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        // Sometimes we need unused variables for destructuring or function signatures
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        // Destructuring can be used to remove extra properties which requires unused vars.
+        "ignoreRestSiblings": true
+      }
+    ]
+  }
+}
