@@ -1,23 +1,81 @@
+import csv from 'csv-parser';
 import express from 'express';
+import fs from 'fs';
+import { v4 as uuid } from 'uuid';
+import { AppDataSource, connectDB } from './db';
+import { FoodProvider } from './db/entity';
 
 const app = express();
 const port = 3000;
 
-app.use(express.json());
+const main = async () => {
+  app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
+  const foodProviderRepository = AppDataSource.getRepository(FoodProvider);
 
-app.get('/api/data', (req, res) => {
-  res.json({ message: 'Here is some data', data: [1, 2, 3, 4, 5] });
-});
+  app.get('/', async (req, res) => {
+    const {
+      query: { limit, skip },
+    } = req;
 
-app.post('/api/submit', (req, res) => {
-  const { name } = req.body;
-  res.json({ message: `Hello, ${name}! Your data has been received.` });
-});
+    const limitParam = limit ? parseInt(limit as string) : 100;
+    const skipParam = skip ? parseInt(skip as string) : 0;
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+    const [providers, total] = await foodProviderRepository.findAndCount({
+      take: limitParam,
+      skip: skipParam,
+    });
+
+    res.json({
+      data: providers,
+      total,
+      skip: skipParam,
+      limit: limitParam,
+    });
+  });
+
+  app.post('/data/seed', (req, res) => {
+    const foodProviderRepository = AppDataSource.getRepository(FoodProvider);
+
+    try {
+      const results: FoodProvider[] = [];
+
+      fs.createReadStream('Mobile_Food_Facility_Permit.csv')
+        .pipe(csv())
+        .on('data', (data) =>
+          results.push(
+            foodProviderRepository.create({
+              id: uuid(),
+              locationId: data.locationid,
+              name: data.Applicant,
+              type: data.FacilityType,
+              address: data.Address,
+              permitNumber: data.permit,
+              permitStatus: data.Status,
+              foodItems: data.FoodItems,
+              latitude: data.Latitude,
+              longitude: data.Longitude,
+              hours: data.dayshours,
+              permitExpiration: data.ExpirationDate,
+            })
+          )
+        )
+        .on('end', async () => {
+          console.log('successfully parsed csv');
+          await foodProviderRepository.save(results);
+        });
+    } catch (error) {
+      throw error;
+    }
+
+    res.json({ message: 'successfully seeded data' });
+  });
+
+  await connectDB();
+
+  app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+  });
+};
+
+main();

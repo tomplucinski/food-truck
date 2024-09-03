@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:11
+    ports:
+      - 6543:6543
+    environment:
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: devPassword1!
+      POSTGRES_DB: master
+    command: -p 6543

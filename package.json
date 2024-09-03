@@ -5,22 +5,32 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node-dev -r dotenv/config --respawn --files --quiet --ignore-watch node_modules src/index.ts dotenv_config_path=.env.local",
+    "seed": "ts-node -r dotenv/config scripts/seed.ts dotenv_config_path=.env.local",
+    "schema": "npx typeorm-ts-node-commonjs migration:generate -d src/db/index.ts src/db/migrations/$npm_config_name"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "-": "^0.0.1",
-    "express": "^4.19.2"
+    "csv-parser": "^3.0.0",
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "typeorm": "^0.3.20",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
+    "dotenv": "^16.4.5",
     "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.5.4"
   }
 }
