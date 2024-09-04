@@ -13,7 +13,7 @@ const main = async () => {
 
   const foodProviderRepository = AppDataSource.getRepository(FoodProvider);
 
-  app.get('/', async (req, res) => {
+  app.get('/data', async (req, res) => {
     const {
       query: { limit, skip },
     } = req;
@@ -61,8 +61,8 @@ const main = async () => {
           )
         )
         .on('end', async () => {
-          console.log('successfully parsed csv');
           await foodProviderRepository.save(results);
+          console.log('successfully parsed and saved data');
         });
     } catch (error) {
       throw error;
